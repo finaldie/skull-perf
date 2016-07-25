@@ -1,0 +1,114 @@
+#!/bin/bash
+
+function usage()
+{
+    echo "usage:"
+    echo "  mock_ep -p port -d data [-k|--stay] [-i interval]"
+}
+
+function init()
+{
+    BIN_PATH=`dirname $0`
+
+    . $BIN_PATH/env.bash
+}
+
+function parse_and_run()
+{
+    # parse the command args
+    local args=`getopt -a \
+        -o p:d:ki:h \
+        -l port:,data:stay,help \
+        -n "mock_ep" -- "$@"`
+
+    if [ $? != 0 ]; then
+        echo "Error: Invalid parameters" >&2
+        usage >&2
+        exit 1
+    fi
+
+    eval set -- "$args"
+
+    local port="7760"
+    local data=""
+    local stay=false
+    local interval=0
+
+    while true; do
+        case "$1" in
+            -p|--port)
+                port=$2
+                shift 2;
+                ;;
+            -d|--data)
+                data=$2
+                shift 2;
+                ;;
+            -k|--stay)
+                stay=true
+                shift
+                ;;
+            -i)
+                interval=$2
+                shift 2
+                ;;
+            -h|--help)
+                shift
+                usage
+                exit 0
+                ;;
+            --)
+                shift;
+                break;
+                ;;
+            *)
+                echo "Error: Invalid parameters $1" >&2
+                shift
+                usage >&2
+                exit 1
+                ;;
+        esac
+    done
+
+    # Start mock end point
+    run "$port" $stay "$data" "$interval"
+}
+
+# Notes: append '-i 10000' to make sure nc won't response in a short time
+function run()
+{
+    local port="$1"
+    local stay=$2
+    local data="$3"
+    local interval=$4
+
+    local extra_arg=""
+    if $stay; then
+        extra_arg+="-k "
+    fi
+
+    if [ $interval -gt 0 ]; then
+        extra_arg+="-i $interval "
+    fi
+
+    local cmd=""
+    if [ ! -z "$data" ]; then
+        cmd="echo $data | nc -l $extra_arg 127.0.0.1 $port"
+    else
+        cmd="nc -l $extra_arg 127.0.0.1 $port"
+    fi
+
+    (
+        cd $SKULL_PROJ_NAME
+
+        expect -c "
+            spawn nohup bash -c \"$cmd\" &
+            send \"\r\"
+            interact
+        "
+    )
+}
+
+# ----------------- main ------------------
+init
+parse_and_run $@

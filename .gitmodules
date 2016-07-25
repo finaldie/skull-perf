@@ -1,0 +1,3 @@
+[submodule "deps/skull-ft"]
+	path = deps/skull-ft
+	url = git://github.com/finaldie/skull-ft.git
