@@ -28,7 +28,6 @@ prepare:
 	@mkdir -p $(OUTPUT_FOLDER)
 
 clean:
-	@rm -rf $(OUTPUT_FOLDER)
 
 help:
 	@echo "usage:"
