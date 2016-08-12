@@ -17,7 +17,8 @@ make case=echo_back
 **Notes:** After you tested one case, run `killall skull-engine` and then start next case.
 
 ### Cases
-Case Name | Description
-----------|------------
-echo_back | A simple echo back server, which accept HTTP GET request and return the response
-
+Case Name              | Description
+-----------------------|------------
+echo_back              | A simple echo back server, which accept HTTP GET request and return the response
+module_call_service    | A module call a service api, then response to client
+module_call_service_ep | A module call a service api, and in the service api it create a ep client to callout another service
