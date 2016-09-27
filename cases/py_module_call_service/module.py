@@ -1,11 +1,11 @@
 import yaml
 import pprint
 
-from skullpy import txn     as Txn
+from skullpy import txn as Txn
 from skullpy import txndata as TxnData
-from skullpy import logger  as Logger
+from skullpy import logger as Logger
 
-from skull.common import protos  as Protos
+from skull.common import protos as Protos
 from skull.common import metrics as Metrics
 from skull.common.proto import *
 
@@ -18,14 +18,10 @@ Content-Type: text/html\r\n\
 \r\n\
 <html><body><h1>It works</h1></body></html>"
 
-##
-# Module Init Entry, be called when start phase
-#
-# @param config  A parsed yamlObj
-#
 def module_init(config):
     print "py module init"
-    Logger.info('0', 'config: {}'.format(pprint.pformat(config)))
+    print "config: ",
+    pprint.pprint(config)
 
     Logger.trace('py module init: trace test')
     Logger.debug('py module init: debug test')
@@ -35,27 +31,11 @@ def module_init(config):
     Logger.fatal('4', 'py module init: fatal test', 'no solution')
     return
 
-##
-# Module Release Function, be called when shutdown phase
-#
 def module_release():
     print "py module release"
     return
 
-##
-# Input data unpack function, be called if this module is the 'first' module in
-#  the workflow and there is input data incoming
-#
-# @param txn  Transcation context which is used for get shared transcation data,
-#              invoke `iocall`
-# @param data Input data
-#
-# @return How many bytes be consumed
-#
 def module_unpack(txn, data):
-    #print "py module unpack"
-    #Logger.info('5', 'receive data: {}'.format(data))
-
     # Parse the request
     consumed = 0
     idx = str(data).rfind('\r\n\r\n')
@@ -70,26 +50,13 @@ def module_unpack(txn, data):
     #print "consumed: {}, len of data: {}".format(consumed, len(data))
     return consumed
 
-##
-# Input data unpack function, be called if this module is the 'last' module in
-#  the workflow (It would no effect if there is no response needed)
-#
-# @param txn  Transcation context which is used for get shared transcation data,
-#              invoke `iocall`
-# @param data Input data
-#
-# @return How many bytes be consumed
-#
 def module_pack(txn, txndata):
-    #print "py module pack"
-
-    # Increase counters
     mod_metrics = Metrics.module()
     mod_metrics.response.inc(1)
 
-    # Assemble response
     if txn.status() != Txn.Txn.TXN_OK:
         txndata.append('error')
+        Logger.error('6', 'module_pack error', 'no solution')
     else:
         #example_msg = txn.data()
         #print "pack data: %s" % example_msg.data
@@ -97,18 +64,26 @@ def module_pack(txn, txndata):
 
         txndata.append(RESPONSE_CONTENT)
 
-##
-# Module Runnable Entry, be called when this module be picked up in current
-#  workflow
-#
-# @param txn Transcation context
-#
-# @return - True if no error
-#         - False if error occurred
 def module_run(txn):
-    #print "py module run"
-
-    # Increase counters
+    #print "module_run"
     mod_metrics = Metrics.module()
     mod_metrics.request.inc(1)
+
+    # Assemble api request
+    get_req_msg = service_s1_get_req_pto.get_req()
+    get_req_msg.name = "hello"
+
+    # invoke iocall to s1 service
+    ret = txn.iocall('s1', 'get', get_req_msg, 0, _api_cb)
+
+    #print "iocall ret: {}".format(ret)
     return True
+
+def _api_cb(txn, iostatus, api_name, request_msg, response_msg):
+    #print "api_cb: iostatus: {}, api_name: {}, request_msg: {}, response_msg: {}".format(
+    #        iostatus, api_name, request_msg, response_msg)
+
+    example_msg = txn.data()
+    example_msg.data = str(response_msg.response)
+    return True
+
