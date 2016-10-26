@@ -59,7 +59,7 @@ void module_release()
  *   - > 0: Already unpacked a completed request, the returned value will be consumed
  */
 static
-size_t module_unpack(skullcpp::Txn& txn, const void* data, size_t data_sz)
+ssize_t module_unpack(skullcpp::Txn& txn, const void* data, size_t data_sz)
 {
     skull_metrics_module.request.inc(1);
     //std::cout << "module_unpack(test): data sz: " << data_sz << std::endl;

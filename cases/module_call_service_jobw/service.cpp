@@ -35,7 +35,7 @@ void _timerjob(skullcpp::Service& service, skullcpp::ServiceApiData& apiData) {
 static
 void _timerjob_error(const skullcpp::Service& service, skullcpp::ServiceApiData& apiData) {
     //std::cout << "timer job error occurred (service busy)" << std::endl;
-    
+
     SKULLCPP_LOG_WARN("_timerjob_error", "service busy",
                       "Please increase the max value of the service queue");
 }
