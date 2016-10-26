@@ -26,3 +26,4 @@ module_call_service_jobr | A module call a server api, and in the servce api it 
 module_call_service_jobw | A module call a server api, and in the servce api it create write-job
 python echo back         | A simple python echo back server, which accept HTTP GET request and return the response
 python module call service | A python module call a service api, then response to client
+python module http parsing | A python module handle http parsing, then response a standard http response
