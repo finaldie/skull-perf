@@ -1,13 +1,13 @@
 import yaml
 import pprint
 
-from skullpy import txn     as Txn
-from skullpy import txndata as TxnData
-from skullpy import logger  as Logger
+from skull import txn     as Txn
+from skull import txndata as TxnData
+from skull import logger  as Logger
 
-from skull.common import protos  as Protos
-from skull.common import metrics as Metrics
-from skull.common.proto import *
+from common import protos  as Protos
+from common import metrics as Metrics
+from common.proto import *
 
 RESPONSE_CONTENT ="\
 HTTP/1.1 200 OK\r\n\
@@ -24,7 +24,7 @@ Content-Type: text/html\r\n\
 # @param config  A parsed yamlObj
 #
 def module_init(config):
-    print "py module init"
+    print("py module init")
     Logger.info('0', 'config: {}'.format(pprint.pformat(config)))
 
     Logger.trace('py module init: trace test')
@@ -39,7 +39,7 @@ def module_init(config):
 # Module Release Function, be called when shutdown phase
 #
 def module_release():
-    print "py module release"
+    print("py module release")
     return
 
 ##
